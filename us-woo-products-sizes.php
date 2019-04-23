@@ -70,6 +70,47 @@ function woo_size_tab_content() {
     $terms = get_the_terms( get_the_ID(), 'product_cat' );
     // sizes table
     $sizes = array();
+
+  if( have_rows('sizes', 'product_cat_' . $terms[0]->term_id ) ):
+    $i = 0;
+    while ( have_rows('sizes', 'product_cat_' . $terms[0]->term_id ) ) : the_row();
+
+      $sizes[$i]['size'] = get_sub_field('size', 'product_cat_' . $terms[0]->term_id );
+      $j = 0;
+      while ( have_rows('size_attributes', 'product_cat_' . $terms[0]->term_id ) ) : the_row();
+        ?>
+        <?php
+        $sizes[$i]['size_attributes'][$j]['type'] = get_sub_field('type', 'product_cat_' . $terms[0]->term_id );
+        $sizes[$i]['size_attributes'][$j]['from'] = get_sub_field('from', 'product_cat_' . $terms[0]->term_id );
+        $sizes[$i]['size_attributes'][$j]['to'] = get_sub_field('to', 'product_cat_' . $terms[0]->term_id );
+        $j++;
+      endwhile;
+      $i++;
+    endwhile;
+  else :
+  endif;
+
+  ?>
+    <form class="size-wizzard-form" onsubmit="calculateSize(); return false;">
+  <?php
+  for ($j = 0; $j<sizeof($sizes[0]['size_attributes']); $j++) {
+    ?>
+      <div class="form-group">
+          <input required type="number" placeholder="<?php echo $sizes[0]['size_attributes'][$j]['type'] ?>" min="0" class="form-control size-inputs" id="<?php echo $sizes[0]['size_attributes'][$j]['type'] ?>">
+      </div>
+    <?php
+  }
+  $sizes_json = json_encode($sizes);
+  if (sizeof($sizes > 0)) {
+    ?>
+      <input id="size-wizard" value="Check Your Size" onclick="displaySizeWizard()" class="btn btn-default"></button>
+      <input id="size-wizard-next" value="Next" onclick="nextInput()" class="btn btn-default"></button>
+      <input type="submit" id="calculateSizeBtn" data='<?php echo print_r($sizes_json); ?>' value="Calculate Size" onclick="" class="btn btn-default"></button>
+      </form>
+      <div id="size-result"> </div>
+    <?php
+  }
+
     if( have_rows('sizes', 'product_cat_' . $terms[0]->term_id ) ):
         $i = 0;
         while ( have_rows('sizes', 'product_cat_' . $terms[0]->term_id ) ) : the_row();
@@ -86,7 +127,6 @@ function woo_size_tab_content() {
                     </thead>
                 <tbody>
             <?php
-            $sizes[$i]['size'] = get_sub_field('size', 'product_cat_' . $terms[0]->term_id );
             $j = 0;
             while ( have_rows('size_attributes', 'product_cat_' . $terms[0]->term_id ) ) : the_row();
                 ?>
@@ -96,9 +136,6 @@ function woo_size_tab_content() {
                     <td><?php the_sub_field('to', 'product_cat_' . $terms[0]->term_id ); ?></td>
                 </tr>    
                 <?php
-                $sizes[$i]['size_attributes'][$j]['type'] = get_sub_field('type', 'product_cat_' . $terms[0]->term_id );
-                $sizes[$i]['size_attributes'][$j]['from'] = get_sub_field('from', 'product_cat_' . $terms[0]->term_id );
-                $sizes[$i]['size_attributes'][$j]['to'] = get_sub_field('to', 'product_cat_' . $terms[0]->term_id );
                 $j++;
             endwhile;
             $i++;
@@ -114,24 +151,5 @@ function woo_size_tab_content() {
 
     // calculation form
     
-    ?>
-    <form class="size-wizzard-form" onsubmit="calculateSize(); return false;">
-    <?php
-    for ($j = 0; $j<sizeof($sizes[0]['size_attributes']); $j++) {
-     ?>
-        <div class="form-group">
-            <input required type="number" placeholder="<?php echo $sizes[0]['size_attributes'][$j]['type'] ?>" min="0" class="form-control size-inputs" id="<?php echo $sizes[0]['size_attributes'][$j]['type'] ?>">
-        </div>
-     <?php
-    }
-    $sizes_json = json_encode($sizes);
-    if (sizeof($sizes > 0)) {
-    ?>
-    <input id="size-wizard" value="Check Your Size" onclick="displaySizeWizard()" class="btn btn-default"></button>
-    <input id="size-wizard-next" value="Next" onclick="nextInput()" class="btn btn-default"></button>
-    <input type="submit" id="calculateSizeBtn" data='<?php echo print_r($sizes_json); ?>' value="Calculate Size" onclick="" class="btn btn-default"></button>
-    </form>
-    <div id="size-result"> </div>
-    <?php
-    }
+
 }
