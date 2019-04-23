@@ -68,7 +68,6 @@ function woo_size_tab( $tabs ) {
 
 function woo_size_tab_content() {
     $terms = get_the_terms( get_the_ID(), 'product_cat' );
-
     // sizes table
     $sizes = array();
     if( have_rows('sizes', 'product_cat_' . $terms[0]->term_id ) ):
