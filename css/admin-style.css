@@ -1,0 +1,7 @@
+.taxonomy-product_cat #edittag {
+    max-width: 100% !important;
+}
+
+.edit-tags-php .acf-fields{
+    display: none;
+}
