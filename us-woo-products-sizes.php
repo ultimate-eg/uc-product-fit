@@ -4,7 +4,7 @@ Plugin Name: US Products sizes
 Plugin URI: ahmedsoud3@gmail.com
 description: this plugins display new tab in WooCommerce tab to identify customer fit size
 Version: 1.0
-Author: Ahmed Soud
+Author: Ahmed Abdelghffar Soud
 License: GPL2
 */
 defined( 'ABSPATH' ) or exit;
