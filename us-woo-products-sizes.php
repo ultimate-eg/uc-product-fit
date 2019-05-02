@@ -11,9 +11,9 @@ defined( 'ABSPATH' ) or exit;
 
 // plugins activation check
 global $woocommerce;
-if ( !   in_array( 
-    'woocommerce/woocommerce.php', 
-    apply_filters( 'active_plugins', get_option( 'active_plugins' ) ) 
+if ( !   in_array(
+    'woocommerce/woocommerce.php',
+    apply_filters( 'active_plugins', get_option( 'active_plugins' ) )
   )) {
     add_action( 'admin_notices', 'uc_woocommerce_admin_notice' );
     return;
@@ -27,13 +27,13 @@ function uc_woocommerce_admin_notice(){
 <?php
 }
 
-if ( !   in_array( 
-    'advanced-custom-fields-pro/acf.php', 
-    apply_filters( 'active_plugins', get_option( 'active_plugins' ) ) 
+if ( !   in_array(
+    'advanced-custom-fields-pro/acf.php',
+    apply_filters( 'active_plugins', get_option( 'active_plugins' ) )
   )) {
     add_action( 'admin_notices', 'uc_acf_admin_notice' );
     return;
-} 
+}
 
 function uc_acf_admin_notice(){
 	?>
@@ -56,7 +56,7 @@ add_filter( 'woocommerce_product_tabs', 'woo_size_tab' );
 function woo_size_tab( $tabs ) {
 
     $terms = get_the_terms( get_the_ID(), 'product_cat' );
-    if( get_field('sizes', 'product_cat_' . $terms[0]->term_id ) ){
+    if( get_field('sizes', 'product_cat_' . $terms[0]->term_id ) || get_field('sizes', get_the_ID()) ){
     $tabs['desc_tab'] = array(
         'title'     => __( 'What is my size', 'woocommerce' ),
         'priority'  => 50,
@@ -129,7 +129,7 @@ function woo_size_tab_content() {
       $i = 0;
       while ( have_rows('sizes', $id ) ) : the_row();
           ?>
-              <div class="panel panel-default">
+              <div class="panel panel-default sizes-table">
                   <h3 class="panel-heading"><?php the_sub_field('size', $id ); ?></h3>
               <table class="table">
               <thead>
@@ -164,6 +164,6 @@ function woo_size_tab_content() {
 
 
     // calculation form
-    
+
 
 }

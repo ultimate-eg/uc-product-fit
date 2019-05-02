@@ -65,10 +65,8 @@ if (sizes) {
                 calculateSize();
             }
         } else {
-            document.getElementById('size-result').innerHTML = '<div class="alert alert-warning"><h1 class="size-result">Please Enter The ' + inputsArray[currentInput] + '</h1></div>';
+            document.getElementById('size-result').innerHTML = '<div class="alert alert-warning"><h3 class="size-result">Please Enter The ' + inputsArray[currentInput] + '</h3></div>';
         }
 
     }
 }
-
-
