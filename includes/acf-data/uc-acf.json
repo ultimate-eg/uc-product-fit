@@ -140,7 +140,14 @@
                     "operator": "==",
                     "value": "product_cat"
                 }
-            ]
+            ],
+          [
+            {
+              "param": "post_type",
+              "operator": "==",
+              "value": "product"
+            }
+          ]
         ],
         "menu_order": 0,
         "position": "normal",

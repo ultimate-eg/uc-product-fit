@@ -29,5 +29,9 @@
 }
 
 #size-wizard {
-    size: 25px;
+    font-size: 25px;
+}
+
+.sizes-table .panel-heading {
+  padding: 10px 15px !important;
 }

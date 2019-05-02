@@ -11,9 +11,9 @@ defined( 'ABSPATH' ) or exit;
 
 // plugins activation check
 global $woocommerce;
-if ( !   in_array( 
-    'woocommerce/woocommerce.php', 
-    apply_filters( 'active_plugins', get_option( 'active_plugins' ) ) 
+if ( !   in_array(
+    'woocommerce/woocommerce.php',
+    apply_filters( 'active_plugins', get_option( 'active_plugins' ) )
   )) {
     add_action( 'admin_notices', 'uc_woocommerce_admin_notice' );
     return;
@@ -27,13 +27,13 @@ function uc_woocommerce_admin_notice(){
 <?php
 }
 
-if ( !   in_array( 
-    'advanced-custom-fields-pro/acf.php', 
-    apply_filters( 'active_plugins', get_option( 'active_plugins' ) ) 
+if ( !   in_array(
+    'advanced-custom-fields-pro/acf.php',
+    apply_filters( 'active_plugins', get_option( 'active_plugins' ) )
   )) {
     add_action( 'admin_notices', 'uc_acf_admin_notice' );
     return;
-} 
+}
 
 function uc_acf_admin_notice(){
 	?>
@@ -56,7 +56,7 @@ add_filter( 'woocommerce_product_tabs', 'woo_size_tab' );
 function woo_size_tab( $tabs ) {
 
     $terms = get_the_terms( get_the_ID(), 'product_cat' );
-    if( get_field('sizes', 'product_cat_' . $terms[0]->term_id ) ){
+    if( get_field('sizes', 'product_cat_' . $terms[0]->term_id ) || get_field('sizes', get_the_ID()) ){
     $tabs['desc_tab'] = array(
         'title'     => __( 'What is my size', 'woocommerce' ),
         'priority'  => 50,
@@ -67,17 +67,27 @@ function woo_size_tab( $tabs ) {
 }
 
 function woo_size_tab_content() {
-    $terms = get_the_terms( get_the_ID(), 'product_cat' );
-    // sizes table
-    $sizes = array();
+  $terms = get_the_terms( get_the_ID(), 'product_cat' );
+  $sizes = array();
 
-  if( have_rows('sizes', 'product_cat_' . $terms[0]->term_id ) ):
+  $term_id = 'product_cat_' . $terms[0]->term_id;
+  $product_id = get_the_ID();
+  $override_product = get_field('sizes', $product_id);
+
+  if (sizeof($override_product) > 0) {
+    $id = $product_id;
+  } else {
+    $id = $term_id;
+  }
+
+  // get sizes from acf data
+  if( have_rows('sizes',  $id ) ):
     $i = 0;
-    while ( have_rows('sizes', 'product_cat_' . $terms[0]->term_id ) ) : the_row();
+    while ( have_rows('sizes', $id ) ) : the_row();
 
-      $sizes[$i]['size'] = get_sub_field('size', 'product_cat_' . $terms[0]->term_id );
+      $sizes[$i]['size'] = get_sub_field('size', $id );
       $j = 0;
-      while ( have_rows('size_attributes', 'product_cat_' . $terms[0]->term_id ) ) : the_row();
+      while ( have_rows('size_attributes', $id ) ) : the_row();
         ?>
         <?php
         $sizes[$i]['size_attributes'][$j]['type'] = get_sub_field('type', 'product_cat_' . $terms[0]->term_id );
@@ -90,6 +100,8 @@ function woo_size_tab_content() {
   else :
   endif;
 
+
+  // sizes form
   ?>
     <form class="size-wizzard-form" onsubmit="calculateSize(); return false;">
   <?php
@@ -101,7 +113,7 @@ function woo_size_tab_content() {
     <?php
   }
   $sizes_json = json_encode($sizes);
-  if (sizeof($sizes > 0)) {
+  if (sizeof($sizes ) > 0) {
     ?>
       <input id="size-wizard" value="Check Your Size" onclick="displaySizeWizard()" class="btn btn-default"></button>
       <input id="size-wizard-next" value="Next" onclick="nextInput()" class="btn btn-default"></button>
@@ -111,45 +123,47 @@ function woo_size_tab_content() {
     <?php
   }
 
-    if( have_rows('sizes', 'product_cat_' . $terms[0]->term_id ) ):
-        $i = 0;
-        while ( have_rows('sizes', 'product_cat_' . $terms[0]->term_id ) ) : the_row();
-            ?>
-                <div class="panel panel-default">
-                    <h3 class="panel-heading"><?php the_sub_field('size', 'product_cat_' . $terms[0]->term_id ); ?></h3>
-                <table class="table">
-                <thead>
-                    <tr>
-                        <th>Type</th>
-                        <th>From(cm)</th>
-                        <th>To(cm)</th>
-                    </tr>
-                    </thead>
-                <tbody>
-            <?php
-            $j = 0;
-            while ( have_rows('size_attributes', 'product_cat_' . $terms[0]->term_id ) ) : the_row();
-                ?>
-                <tr>
-                    <td><?php the_sub_field('type', 'product_cat_' . $terms[0]->term_id ); ?></td>
-                    <td><?php the_sub_field('from', 'product_cat_' . $terms[0]->term_id ); ?></td>
-                    <td><?php the_sub_field('to', 'product_cat_' . $terms[0]->term_id ); ?></td>
-                </tr>    
-                <?php
-                $j++;
-            endwhile;
-            $i++;
-                ?>
-                </tbody>
-                </table>
-                </div>
-                <?php
-        endwhile;
-    else :
-    endif;
+
+  // sizes table
+  if( have_rows('sizes', $id ) ):
+      $i = 0;
+      while ( have_rows('sizes', $id ) ) : the_row();
+          ?>
+              <div class="panel panel-default sizes-table">
+                  <h3 class="panel-heading"><?php the_sub_field('size', $id ); ?></h3>
+              <table class="table">
+              <thead>
+                  <tr>
+                      <th>Type</th>
+                      <th>From(cm)</th>
+                      <th>To(cm)</th>
+                  </tr>
+                  </thead>
+              <tbody>
+          <?php
+          $j = 0;
+          while ( have_rows('size_attributes', $id ) ) : the_row();
+              ?>
+              <tr>
+                  <td><?php the_sub_field('type', $id ); ?></td>
+                  <td><?php the_sub_field('from', $id ); ?></td>
+                  <td><?php the_sub_field('to', $id ); ?></td>
+              </tr>
+              <?php
+              $j++;
+          endwhile;
+          $i++;
+              ?>
+              </tbody>
+              </table>
+              </div>
+              <?php
+      endwhile;
+  else :
+  endif;
 
 
     // calculation form
-    
+
 
 }
